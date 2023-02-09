@@ -19,39 +19,23 @@ year={2023}
 Run the following commands under the root folder of this project:
 
 ```bash
-python3.7 -m venv venv
+./install.sh
 source  venv/bin/activate
-pip install -e . --extra-index-url=https://smpypi.z5.web.core.windows.net/
 ```
 
+- `python3.7` is required.
+
 ### Requirements
-The following two opensource libraries are needed for running the code. Please follow the instruction below to clone the repository and apply the provided patch.
+The following two opensource libraries are needed for running the code. The provided patches have been applied above.
 
 #### Open Pythonic Dataflow Dialogue Framework (OpenDF)
 
 See more about the [repo](https://github.com/telepathylabsai) ([MIT license](https://github.com/telepathylabsai/OpenDF/blob/main/LICENSE).). Most modifications are about API implementations. 
 
-```bash
-git clone https://github.com/telepathylabsai/OpenDF.git
-cd OpenDF
-git apply ../opendf_changes.patch
-mv opendf ../src/.
-cd ..
-```
-
-
 #### Semantic Parsing with Constrained Language Models
 
 See more details in the [repo](https://github.com/microsoft/semantic_parsing_with_constrained_lm) ( [MIT license](https://github.com/microsoft/semantic_parsing_with_constrained_lm/blob/main/LICENSE)) .
 Most modifications are related to [issue 13](https://github.com/microsoft/semantic_parsing_with_constrained_lm/issues/13) and supporting V1.
-
-```bash
-git clone https://github.com/microsoft/semantic_parsing_with_constrained_lm.git
-cd semantic_parsing_with_constrained_lm
-git apply ../semantic_parsing_with_constrained_lm_changes.patch
-mv semantic_parsing_with_constrained_lm ../src/.
-cd ..
-```
 
 This codebase has been tested on `Deep Learning AMI GPU PyTorch 1.11.0 (Amazon Linux 2) 20220526` and MacOS with Python 3.7. 
 Other OS or Python versions (shipped with Conda) have not been tested and might not work properly.
