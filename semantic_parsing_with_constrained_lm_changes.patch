@@ -1,8 +1,12 @@
+Index: src/semantic_parsing_with_constrained_lm/README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/README.md b/src/semantic_parsing_with_constrained_lm/README.md
 new file mode 100644
-index 0000000..0afb506
---- /dev/null
-+++ b/src/semantic_parsing_with_constrained_lm/README.md
+--- /dev/null	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
++++ b/src/semantic_parsing_with_constrained_lm/README.md	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
 @@ -0,0 +1,8 @@
 +# Semantic Parsing with Constrained Language Models
 +
@@ -12,11 +16,15 @@ index 0000000..0afb506
 +
 +- Implemented `semantic_parsing_with_constrained_lm.finetune.platypus`, see https://github.com/microsoft/semantic_parsing_with_constrained_lm/issues/13
 +- Supported SMCalFlow V1 and Simplified syntax.
+Index: src/semantic_parsing_with_constrained_lm/configs/benchclamp_config.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/configs/benchclamp_config.py b/src/semantic_parsing_with_constrained_lm/configs/benchclamp_config.py
-index c81ac78..bd238ee 100644
---- a/src/semantic_parsing_with_constrained_lm/configs/benchclamp_config.py
-+++ b/src/semantic_parsing_with_constrained_lm/configs/benchclamp_config.py
-@@ -61,7 +61,7 @@ HUGGINGFACE_MODEL_DIR = (
+--- a/src/semantic_parsing_with_constrained_lm/configs/benchclamp_config.py	(revision 40c2bfd3ac256b610eec467803b466508641e31a)
++++ b/src/semantic_parsing_with_constrained_lm/configs/benchclamp_config.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -61,7 +61,7 @@
      else Path("huggingface_models/")
  )
  TRAINED_MODEL_DIR = (
@@ -25,16 +33,16 @@ index c81ac78..bd238ee 100644
  )
  LOG_DIR = Path("/mnt/my_output/logs/") if RUN_ON_AML else Path("logs/")
  VERSION = "1.0"
-@@ -131,6 +131,8 @@ BATCH_SIZE_PER_DEVICE_OVERRIDES: Dict[str, int] = {
+@@ -131,6 +131,8 @@
      for lr in ["0.0001"]
      for split_id in ["low_0", "low_1", "low_2", "medium_0", "all"]
  }
 +BATCH_SIZE_PER_DEVICE_OVERRIDES['t5-large-lm-adapt_calflow_last_user_all_0.0001'] = 4
 +BATCH_SIZE_PER_DEVICE_OVERRIDES['bart-large_calflow_last_user_all_0.0001'] = 4
- 
- 
+
+
  def create_train_exp(
-@@ -192,10 +194,16 @@ def create_eval_exp(
+@@ -192,10 +194,16 @@
      data_config: ClampDataConfig,
      problem_type: Literal["constrained", "unconstrained-beam", "unconstrained-greedy"],
      is_dev: bool,
@@ -50,10 +58,10 @@ index c81ac78..bd238ee 100644
 +    else:
 +        train_data, dev_data, test_data = [], [], []
      is_encoder_decoder = not isinstance(model_config, GPT2ModelConfig)
- 
+
      lm: Seq2SeqModel
-@@ -278,17 +286,20 @@ def create_eval_exp(
- 
+@@ -278,17 +286,20 @@
+
          else:
              # Everything other than Overnight in BenchClamp
 -            train_length_pairs = []
@@ -61,19 +69,18 @@ index c81ac78..bd238ee 100644
 -                num_input_tokens = len(tokenizer.tokenize(datum.natural))
 -                num_output_tokens = len(tokenizer.tokenize(datum.canonical)) + 1
 -                train_length_pairs.append((num_input_tokens, num_output_tokens))
--
--            print("Computing max steps regression model parameters ...")
--            max_steps_intercept, max_steps_slope = compute_and_print_fit(
--                train_length_pairs, 10, 1
--            )
--            print("Done")
 +            if train_data:
 +                train_length_pairs = []
 +                for datum in train_data:
 +                    num_input_tokens = len(tokenizer.tokenize(datum.natural))
 +                    num_output_tokens = len(tokenizer.tokenize(datum.canonical)) + 1
 +                    train_length_pairs.append((num_input_tokens, num_output_tokens))
-+
+
+-            print("Computing max steps regression model parameters ...")
+-            max_steps_intercept, max_steps_slope = compute_and_print_fit(
+-                train_length_pairs, 10, 1
+-            )
+-            print("Done")
 +                print("Computing max steps regression model parameters ...")
 +                max_steps_intercept, max_steps_slope = compute_and_print_fit(
 +                    train_length_pairs, 10, 1
@@ -84,7 +91,7 @@ index c81ac78..bd238ee 100644
              partial_parse_builder = create_partial_parse_builder(
                  constrained, data_config, tokenizer
              )
-@@ -313,6 +324,7 @@ def create_eval_exp(
+@@ -313,6 +324,7 @@
              }
              if data_config.dataset_name in [
                  BenchClampDataset.CalFlowV2.value,
@@ -92,22 +99,22 @@ index c81ac78..bd238ee 100644
                  BenchClampDataset.TreeDST.value,
              ]:
                  metrics["lispress_match"] = TopKLispressMatch(beam_size)
-@@ -336,12 +348,13 @@ def create_eval_exp(
+@@ -336,12 +348,13 @@
                  test_data=eval_data,
                  client=lm,
                  log_dir=LOG_DIR / VERSION,
 +                data_config=data_config,
              )
- 
+
      raise ValueError("Could not create eval experiment with inputs")
- 
- 
+
+
 -def create_exps_dict() -> Tuple[
 +def create_exps_dict(**kwargs) -> Tuple[
      Dict[str, Callable[[], TrainExperiment]], Dict[str, Callable[[], Experiment]]
  ]:
      train_exps_dict: Dict[str, Callable[[], TrainExperiment]] = {}
-@@ -404,7 +417,17 @@ def create_exps_dict() -> Tuple[
+@@ -404,7 +417,17 @@
                          "unconstrained-greedy",
                          is_dev=True,
                      )
@@ -120,20 +127,20 @@ index c81ac78..bd238ee 100644
 +                    is_dev=False,
 +                    **kwargs
 +                )
- 
+
 +            dev_complete = True
              if dev_complete and len(dev_results) > 0:
                  print(f"All dev expts complete. Results gathered.\n{dev_results}")
                  best_trained_model_info = max(
-@@ -431,6 +454,7 @@ def create_exps_dict() -> Tuple[
+@@ -431,6 +454,7 @@
                              data_config,
                              constrained,  # type: ignore
                              is_dev=False,
 +                            **kwargs
                          )
- 
+
      return train_exps_dict, eval_exps_dict
-@@ -442,7 +466,7 @@ def build_config(
+@@ -442,7 +466,7 @@
  ) -> Dict[str, Callable[[], Union[TrainExperiment, Experiment]]]:
      sys.setrecursionlimit(50000)
      expts: Dict[str, Callable[[], Union[TrainExperiment, Experiment]]] = {}
@@ -142,23 +149,31 @@ index c81ac78..bd238ee 100644
      expts.update(train_expts)
      expts.update(eval_expts)
      return expts
+Index: src/semantic_parsing_with_constrained_lm/configs/lib/benchclamp.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/configs/lib/benchclamp.py b/src/semantic_parsing_with_constrained_lm/configs/lib/benchclamp.py
-index 9858570..f12963b 100644
---- a/src/semantic_parsing_with_constrained_lm/configs/lib/benchclamp.py
-+++ b/src/semantic_parsing_with_constrained_lm/configs/lib/benchclamp.py
-@@ -74,6 +74,7 @@ def create_partial_parse_builder(
- 
+--- a/src/semantic_parsing_with_constrained_lm/configs/lib/benchclamp.py	(revision 40c2bfd3ac256b610eec467803b466508641e31a)
++++ b/src/semantic_parsing_with_constrained_lm/configs/lib/benchclamp.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -74,6 +74,7 @@
+
          elif data_config.dataset_name in (
              BenchClampDataset.CalFlowV2.value,
 +            BenchClampDataset.CalFlowSimplified.value,
              BenchClampDataset.TreeDST.value,
          ):
              partial_parse_builder = create_partial_parse_builder_lispress_v2(
+Index: src/semantic_parsing_with_constrained_lm/domains/benchclamp_data_setup.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/domains/benchclamp_data_setup.py b/src/semantic_parsing_with_constrained_lm/domains/benchclamp_data_setup.py
-index f054a80..1c4c692 100644
---- a/src/semantic_parsing_with_constrained_lm/domains/benchclamp_data_setup.py
-+++ b/src/semantic_parsing_with_constrained_lm/domains/benchclamp_data_setup.py
-@@ -98,6 +98,9 @@ class BenchClampDatasetConfig(ClampDataConfig):
+--- a/src/semantic_parsing_with_constrained_lm/domains/benchclamp_data_setup.py	(revision 40c2bfd3ac256b610eec467803b466508641e31a)
++++ b/src/semantic_parsing_with_constrained_lm/domains/benchclamp_data_setup.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -98,6 +98,9 @@
              test_data_file = f"{BENCH_CLAMP_PROCESSED_DATA_DIR_AZURE}/{self.dataset_name}/{domain_str}test_all.jsonl"
          else:
              test_data_file = f"{BENCH_CLAMP_PROCESSED_DATA_DIR_AZURE}/{self.dataset_name}/{domain_str}test.jsonl"
@@ -168,24 +183,31 @@ index f054a80..1c4c692 100644
          with BlobFile(str(train_data_file)) as bf:
              print(f"Reading {train_data_file}")
              train_data = data_from_textio(bf)
-@@ -115,9 +118,13 @@ class BenchClampDatasetConfig(ClampDataConfig):
+@@ -115,9 +118,13 @@
              self.modify_data_with_sequence_creator(test_data),
          )
- 
+
 +    def to_local(self, url:str):
 +        suffix = url.split('benchclamp')[-1]
 +        return 'data/benchclamp' + suffix
- 
+
  class BenchClampDataset(str, Enum):
      CalFlowV2 = "CalFlowV2"
 +    CalFlowSimplified = "CalFlowSimplified"
      TreeDST = "TreeDST"
      Overnight = "Overnight"
      MTOP = "MTOP"
-@@ -157,6 +164,21 @@ BENCHCLAMP_DATA_CONFIGS: List[ClampDataConfig] = (
-             ("last_user", LastUserAgentUtterance(), BENCHCLAMP_SPLIT_NAMES),
-         ]
-         for split_name in split_names
+@@ -150,6 +157,21 @@
+             domain=None,
+             dataset_name=BenchClampDataset.CalFlowV2.value,
+             input_sequence_creator=input_sequence_creator,
++        )
++        for input_sequence_creator_name, input_sequence_creator, split_names in [
++            ("no_context", IdentitySequenceCreator(), BENCHCLAMP_SPLIT_NAMES),
++            ("last_agent", LastAgentUtterance(), BENCHCLAMP_SPLIT_NAMES),
++            ("last_user", LastUserAgentUtterance(), BENCHCLAMP_SPLIT_NAMES),
++        ]
++        for split_name in split_names
 +    ] +
 +    [
 +        BenchClampDatasetConfig(
@@ -194,30 +216,27 @@ index f054a80..1c4c692 100644
 +            domain=None,
 +            dataset_name=BenchClampDataset.CalFlowSimplified.value,
 +            input_sequence_creator=input_sequence_creator,
-+        )
-+        for input_sequence_creator_name, input_sequence_creator, split_names in [
-+            ("no_context", IdentitySequenceCreator(), BENCHCLAMP_SPLIT_NAMES),
-+            ("last_agent", LastAgentUtterance(), BENCHCLAMP_SPLIT_NAMES),
-+            ("last_user", LastUserAgentUtterance(), BENCHCLAMP_SPLIT_NAMES),
-+        ]
-+        for split_name in split_names
-     ]
-     + [
-         BenchClampDatasetConfig(
+         )
+         for input_sequence_creator_name, input_sequence_creator, split_names in [
+             ("no_context", IdentitySequenceCreator(), BENCHCLAMP_SPLIT_NAMES),
+Index: src/semantic_parsing_with_constrained_lm/domains/lispress_v2/create_benchclamp_data.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/domains/lispress_v2/create_benchclamp_data.py b/src/semantic_parsing_with_constrained_lm/domains/lispress_v2/create_benchclamp_data.py
-index cc30e44..f60b6c8 100644
---- a/src/semantic_parsing_with_constrained_lm/domains/lispress_v2/create_benchclamp_data.py
-+++ b/src/semantic_parsing_with_constrained_lm/domains/lispress_v2/create_benchclamp_data.py
-@@ -5,7 +5,7 @@ import itertools
+--- a/src/semantic_parsing_with_constrained_lm/domains/lispress_v2/create_benchclamp_data.py	(revision 40c2bfd3ac256b610eec467803b466508641e31a)
++++ b/src/semantic_parsing_with_constrained_lm/domains/lispress_v2/create_benchclamp_data.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -5,7 +5,7 @@
  import json
  import sys
  from pathlib import Path
 -from typing import Optional, Set
 +from typing import Optional, Set, List
- 
+
  import jsons
  from blobfile import BlobFile
-@@ -30,7 +30,36 @@ from semantic_parsing_with_constrained_lm.paths import (
+@@ -30,7 +30,36 @@
      BENCH_CLAMP_RAW_DATA_DIR,
  )
  from semantic_parsing_with_constrained_lm.tokenization import GPT2ClampTokenizer
@@ -252,18 +271,18 @@ index cc30e44..f60b6c8 100644
 +            last_plan = plan
 +            converted.append(datum)
 +    return converted
- 
- 
+
+
  def extract_and_write_grammar(
-@@ -115,6 +144,7 @@ def write_data_and_grammar(
+@@ -115,6 +144,7 @@
          test_benchclamp_data,
          datum_output_dir,
      )
 +    return
- 
+
      extract_and_write_grammar(
          train_dataflow_dialogues_jsonl,
-@@ -192,27 +222,27 @@ def create_grammar_from_train_split():
+@@ -192,27 +222,27 @@
  def main():
      write_data_and_grammar(
          train_dataflow_dialogues_jsonl=BENCH_CLAMP_RAW_DATA_DIR
@@ -275,9 +294,11 @@ index cc30e44..f60b6c8 100644
          test_dataflow_dialogues_jsonl=None,
          datum_output_dir=BENCH_CLAMP_PROCESSED_DATA_DIR
 -        / f"{BenchClampDataset.CalFlowV2}/",
--        grammar_output_dir=BENCH_CLAMP_GRAMMAR_DATA_DIR
++        / f"{BenchClampDataset.CalFlowSimplified}/",
+         grammar_output_dir=BENCH_CLAMP_GRAMMAR_DATA_DIR
 -        / f"{BenchClampDataset.CalFlowV2}/",
--    )
++        / f"{BenchClampDataset.CalFlowSimplified}/",
+     )
 -    write_data_and_grammar(
 -        train_dataflow_dialogues_jsonl=BENCH_CLAMP_RAW_DATA_DIR
 -        / f"{BenchClampDataset.TreeDST}/train_dst.dataflow_dialogues.jsonl",
@@ -287,11 +308,9 @@ index cc30e44..f60b6c8 100644
 -        / f"{BenchClampDataset.TreeDST}/test_dst.dataflow_dialogues.jsonl",
 -        datum_output_dir=BENCH_CLAMP_PROCESSED_DATA_DIR
 -        / f"{BenchClampDataset.TreeDST}/",
-+        / f"{BenchClampDataset.CalFlowSimplified}/",
-         grammar_output_dir=BENCH_CLAMP_GRAMMAR_DATA_DIR
+-        grammar_output_dir=BENCH_CLAMP_GRAMMAR_DATA_DIR
 -        / f"{BenchClampDataset.TreeDST}/",
-+        / f"{BenchClampDataset.CalFlowSimplified}/",
-     )
+-    )
 +    # write_data_and_grammar(
 +    #     train_dataflow_dialogues_jsonl=BENCH_CLAMP_RAW_DATA_DIR
 +    #     / f"{BenchClampDataset.TreeDST}/train_dst.dataflow_dialogues.jsonl",
@@ -304,14 +323,18 @@ index cc30e44..f60b6c8 100644
 +    #     grammar_output_dir=BENCH_CLAMP_GRAMMAR_DATA_DIR
 +    #     / f"{BenchClampDataset.TreeDST}/",
 +    # )
- 
- 
+
+
  if __name__ == "__main__":
+Index: src/semantic_parsing_with_constrained_lm/finetune/download_huggingface_lms.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/finetune/download_huggingface_lms.py b/src/semantic_parsing_with_constrained_lm/finetune/download_huggingface_lms.py
-index 0ca73d8..5f47ce9 100644
---- a/src/semantic_parsing_with_constrained_lm/finetune/download_huggingface_lms.py
-+++ b/src/semantic_parsing_with_constrained_lm/finetune/download_huggingface_lms.py
-@@ -23,11 +23,11 @@ def save_model_and_tokenizer(model, tokenizer, save_dir: Path) -> None:
+--- a/src/semantic_parsing_with_constrained_lm/finetune/download_huggingface_lms.py	(revision 40c2bfd3ac256b610eec467803b466508641e31a)
++++ b/src/semantic_parsing_with_constrained_lm/finetune/download_huggingface_lms.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -23,11 +23,11 @@
  def main():
      # T5
      for model_id, huggingface_model_id in [
@@ -328,9 +351,9 @@ index 0ca73d8..5f47ce9 100644
      ]:
          print(f"Downloading {model_id} ...")
          model = T5ForConditionalGeneration.from_pretrained(huggingface_model_id)
-@@ -37,20 +37,20 @@ def main():
+@@ -37,20 +37,20 @@
          )
- 
+
      # CodeT5
 -    for model_id, huggingface_model_id in [
 -        ("codet5-base", "Salesforce/codet5-base"),
@@ -361,30 +384,34 @@ index 0ca73d8..5f47ce9 100644
          ("bart-large", "facebook/bart-large"),
      ]:
          print(f"Downloading {model_id} ...")
+Index: src/semantic_parsing_with_constrained_lm/run_exp.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/run_exp.py b/src/semantic_parsing_with_constrained_lm/run_exp.py
-index c365b66..f9bff13 100644
---- a/src/semantic_parsing_with_constrained_lm/run_exp.py
-+++ b/src/semantic_parsing_with_constrained_lm/run_exp.py
-@@ -28,7 +28,7 @@ from typing import (
+--- a/src/semantic_parsing_with_constrained_lm/run_exp.py	(revision 40c2bfd3ac256b610eec467803b466508641e31a)
++++ b/src/semantic_parsing_with_constrained_lm/run_exp.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -28,7 +28,7 @@
      Tuple,
      TypeVar,
      Union,
 -    cast,
 +    cast, Any,
  )
- 
+
  import jsons
-@@ -56,6 +56,7 @@ class Experiment(Generic[FullDatumSub]):
+@@ -56,6 +56,7 @@
      metrics: Mapping[str, Metric[Sequence[str], FullDatumSub]]
      log_dir: Optional[Path] = None
      loggers: Optional[List[Logger[Sequence[ModelResult], FullDatumSub]]] = None
 +    data_config:Optional[Any] = None
- 
- 
+
+
  class EvalSplit(str, Enum):
-@@ -75,10 +76,10 @@ class EvalSplit(str, Enum):
- 
- 
+@@ -75,10 +76,10 @@
+
+
  def filter_exp_dict(
 -    # Using Iterable[Tuple[str, E]] is deprecated
 -    exps: Union[Iterable[Tuple[str, E]], Dict[str, Callable[[], E]]],
@@ -397,9 +424,9 @@ index c365b66..f9bff13 100644
  ) -> Dict[str, Callable[[], E]]:
      if isinstance(exps, dict):
          exps_dict = exps
-@@ -122,15 +123,15 @@ def filter_exp_dict(
- 
- 
+@@ -122,15 +123,15 @@
+
+
  async def run(
 -    exp_name: str,
 -    exp: Experiment,
@@ -422,8 +449,8 @@ index c365b66..f9bff13 100644
  ) -> None:
      if log_dir is None:
          if exp.log_dir is None:
-@@ -166,10 +167,10 @@ async def run(
- 
+@@ -166,10 +167,10 @@
+
      print(f"Total test examples: {len(test_data)}")
      test_data = test_data[
 -        (rank * len(test_data))
@@ -436,8 +463,8 @@ index c365b66..f9bff13 100644
 +                ]
      if num_eval_examples is not None:
          test_data = test_data[:num_eval_examples]
- 
-@@ -185,7 +186,7 @@ async def run(
+
+@@ -185,7 +186,7 @@
                  [json.loads(line) for line in open(past_model_outputs_path, "r")],
              )
          )
@@ -446,16 +473,16 @@ index c365b66..f9bff13 100644
          past_model_outputs_path, past_model_outputs_to_copy = max(
              candidate_past_model_outputs, key=lambda t: len(t[1])
          )
-@@ -197,7 +198,7 @@ async def run(
+@@ -197,7 +198,7 @@
          past_model_outputs_to_copy = []
- 
+
      with logger.intercept_output(
 -        exp_log_dir / f"stdout.{now}", exp_log_dir / f"stderr.{now}"
 +            exp_log_dir / f"stdout.{now}", exp_log_dir / f"stderr.{now}"
      ), open(
          exp_log_dir / f"model_outputs.{now}.jsonl", "w"
      ) as model_outputs_f, ExitStack() as logger_cm:
-@@ -208,13 +209,13 @@ async def run(
+@@ -208,13 +209,13 @@
              for metric in exp.metrics.values():
                  metric.reset()
              for test_datum, past_model_output in zip(
@@ -472,8 +499,8 @@ index c365b66..f9bff13 100644
                  )
                  for metric in exp.metrics.values():
                      metric.update(past_model_output["outputs"], test_datum)
-@@ -226,10 +227,10 @@ async def run(
- 
+@@ -226,10 +227,10 @@
+
              async with exp.client:
                  async for kbest, test_datum in limits.map_async_limited(
 -                    exp.model.predict,
@@ -486,8 +513,8 @@ index c365b66..f9bff13 100644
 +                        wrap_exception=not debug,
                  ):
                      beam_search_text = [beam.text for beam in kbest]
- 
-@@ -291,8 +292,8 @@ async def run(
+
+@@ -291,8 +292,8 @@
                  with open(results_path, "w") as results_f:
                      json.dump(all_metric_results, results_f)
          except (  # pylint: disable=try-except-raise
@@ -498,9 +525,9 @@ index c365b66..f9bff13 100644
          ):
              # If we get Ctrl-C then we want to stop the entire program,
              # instead of just skipping this one experiment.
-@@ -319,21 +320,21 @@ async def run(
- 
- 
+@@ -319,21 +320,21 @@
+
+
  def main(
 -    config_name: str = typer.Option(...),
 -    log_dir: Optional[pathlib.Path] = typer.Option(None),
@@ -535,7 +562,7 @@ index c365b66..f9bff13 100644
  ):
      async def inner():
          nonlocal exp_names
-@@ -350,6 +351,10 @@ def main(
+@@ -350,6 +351,10 @@
          exps = config_mod.build_config(log_dir, **kwargs)
          filtered_exp_dict = filter_exp_dict(exps, exp_names, exp_name_pattern)
          for exp_name in filtered_exp_dict:
@@ -546,11 +573,15 @@ index c365b66..f9bff13 100644
              try:
                  exp = filtered_exp_dict[exp_name]()
              except TrainedModelNotFoundError:
+Index: src/semantic_parsing_with_constrained_lm/scfg/generate.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
 diff --git a/src/semantic_parsing_with_constrained_lm/scfg/generate.py b/src/semantic_parsing_with_constrained_lm/scfg/generate.py
-index 74c430c..06212f4 100644
---- a/src/semantic_parsing_with_constrained_lm/scfg/generate.py
-+++ b/src/semantic_parsing_with_constrained_lm/scfg/generate.py
-@@ -228,7 +228,7 @@ def generate_from_grammar_and_nonterminal(
+--- a/src/semantic_parsing_with_constrained_lm/scfg/generate.py	(revision 40c2bfd3ac256b610eec467803b466508641e31a)
++++ b/src/semantic_parsing_with_constrained_lm/scfg/generate.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -228,7 +228,7 @@
  ) -> Iterator[GeneratedNonterminalNode]:
      """
      Generate from a grammar, given a nonterminal.
@@ -559,3 +590,22 @@ index 74c430c..06212f4 100644
      TODO: Do we ever use the enumeration part? Or the w/o replacement part?
      """
      alias_to_iterator: Dict[Alias, Iterator[Tuple[GeneratedNode, ...]]] = {}
+Index: src/setup.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/setup.py b/src/setup.py
+new file mode 100644
+--- /dev/null	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
++++ b/src/setup.py	(revision 9d9dda16e79fdb35e98c29ef69711a8797bec665)
+@@ -0,0 +1,9 @@
++from setuptools import find_packages, setup
++
++setup(
++    name='semantic_parsing_with_constrained_lm',
++    version='0.0.0',
++    description='semantic_parsing_with_constrained_lm',
++    long_description_content_type="text/markdown",
++    packages=find_packages(exclude=['docs', 'tests*', 'third_party']),
++)
